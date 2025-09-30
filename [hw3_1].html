@@ -1,0 +1,35 @@
+<!--
+
+학번 : 202211091
+
+이름 : 이성민
+
+과제내용: 입력폼만들기
+
+-->
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>도형 서식 폼 만들기</title>
+    </head>
+
+    <body>
+        <h3>도형 서식 폼 만들기</h3>
+        <hr>
+        <form>
+            <fieldset>
+                <legend>도형 서식 입력</legend>
+                선종류 <br>
+                <input type="radio" name="line" value="1" checked> 선없음 <br>
+                <input type="radio" name="line" value="2"> 실선 <br>
+                <input type="radio" name="line" value="3"> 점선 <br> <br>
+                선두께 <input type="number" value = "1" min="0.0" max="10" step="2.0"> 
+                선색 <input type="color" value="#00BFFF"> <br> <br>
+                투명도(0~100) : <input type="range" min="0" max="100" list="visibility"> <datalist id="visibility">
+                <option value="0" label="Invisible"><option value="50" label="Blurr"><option value="100" label="Vivid">
+            </fieldset>
+        </form>
+
+    
+    </body>
+</html>
