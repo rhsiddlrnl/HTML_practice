@@ -18,6 +18,8 @@ class Player {
 
         this.width = 30
         this.height = 30
+        this.isOnPlatform = null
+        this.relativeY = 0
     }
 
     draw(){
@@ -27,12 +29,23 @@ class Player {
 
     update(){
         this.draw()
-        this.position.y += this.velocity.y
-        this.position.x += this.velocity.x
+        // this.position.y += this.velocity.y
+        // this.position.x += this.velocity.x
 
-        if(this.position.y + this.height + this.velocity.y <= canvas.height)
-            this.velocity.y += gravity
-        else this.velocity.y = 0
+        // if(this.position.y + this.height + this.velocity.y <= canvas.height)
+        //     this.velocity.y += gravity
+        // else this.velocity.y = 0
+        if (this.isOnPlatform) {
+            const p = this.isOnPlatform
+            this.position.y = p.position.y - this.height + this.relativeY
+        } else {
+            this.position.y += this.velocity.y
+            if (this.position.y + this.height < canvas.height)
+                this.velocity.y += gravity
+            else this.velocity.y = 0
+        }
+
+        this.position.x += this.velocity.x
     }
 }
 
@@ -53,10 +66,34 @@ class Platform {
     }
 }
 
-const player = new Player()
-const platforms = [new Platform({x:200, y:100}), new Platform({x:500, y:200})]
+class Obstacle {
+    constructor({x, y}) {
+        this.position = {
+            x,
+            y
+        }
 
-const keys = {
+        this.width = 100
+        this.height = 20
+    }
+    
+    draw(){
+        c.fillStyle = 'red'
+        c.fillRect(this.position.x, this.position.y, this.width, this.height)
+    }
+}
+
+function init(){
+    player = new Player()
+    platforms = [new Platform({x:200, y:400}), new Platform({x:500, y:300}), new Platform({x:0, y:580}), new Platform({x:200, y:580}), new Platform({x:400, y:580})]
+    obstacles = [new Obstacle({x:200, y:200}), new Obstacle({x:400, y:200})]
+}
+
+let player = new Player()
+let platforms = [new Platform({x:200, y:400}), new Platform({x:500, y:300}), new Platform({x:0, y:580}), new Platform({x:200, y:580}), new Platform({x:400, y:580})]
+let obstacles = [new Obstacle({x:200, y:200}), new Obstacle({x:400, y:200})]
+
+let keys = {
     right:{
         pressed: false
     },
@@ -72,6 +109,9 @@ function animate(){
     platforms.forEach(platform => {
         platform.draw()
     })
+    obstacles.forEach(obstacle => {
+        obstacle.draw()
+    })
 
 
     if(keys.right.pressed && player.position.x < 500){
@@ -85,23 +125,56 @@ function animate(){
             platforms.forEach(platform => {
             platform.position.x -= 5
             })
+            obstacles.forEach(obstacle => {
+            obstacle.position.x -= 5
+            })
             
         } else if(keys.left.pressed){
             platforms.forEach(platform => {
             platform.position.x += 5
             })
+            obstacles.forEach(obstacle => {
+            obstacle.position.x += 5
+            })
         }
     }
 
-    //collision
+    let standingPlatform = null
     platforms.forEach(platform => {
-        if(player.position.y + player.height <= platform.position.y && 
-            player.position.y + player.height + player.velocity.y >= platform.position.y && 
-            player.position.x + player.width >= platform.position.x && 
-            player.position.x <= platform.position.x + platform.width){
-        player.velocity.y = 0
+        const onTopOfPlatform =
+            player.position.y + player.height <= platform.position.y &&
+            player.position.y + player.height + player.velocity.y >= platform.position.y &&
+            player.position.x + player.width >= platform.position.x &&
+            player.position.x <= platform.position.x + platform.width
+
+        if (onTopOfPlatform) {
+            player.velocity.y = 0
+            player.position.y = platform.position.y - player.height
+            standingPlatform = platform
         }
     })
+
+    // 플랫폼 위에 있는 경우 추적
+    if (standingPlatform) {
+        // 새로 올라탐
+        if (player.isOnPlatform !== standingPlatform) {
+            player.isOnPlatform = standingPlatform
+            player.relativeY = 0 // 플랫폼과의 상대 높이 저장
+        }
+    } else {
+        player.isOnPlatform = null
+    }
+    obstacles.forEach(obstacle => {
+    const collided =
+        player.position.x < obstacle.position.x + obstacle.width &&
+        player.position.x + player.width > obstacle.position.x &&
+        player.position.y < obstacle.position.y + obstacle.height &&
+        player.position.y + player.height > obstacle.position.y
+
+    if (collided) {
+        init()
+    }
+})
 }
 
 animate()
@@ -127,7 +200,7 @@ addEventListener('keydown', ({keyCode}) => {
         case 38:
             //console.log('up')
             if(player.velocity.y == 0){
-                player.velocity.y -= 20
+                player.velocity.y -= 15
             }
             
             break 
@@ -156,4 +229,36 @@ addEventListener('keyup', ({keyCode}) => {
             //console.log('up')
             break 
     }
+})
+
+addEventListener('wheel', (event) => {
+    const scale = event.deltaY < 0 ? 1.1 : 0.9
+    const minSize = 20
+    const maxSize = 500
+
+    ;[...platforms, ...obstacles].forEach(obj => {
+        const oldWidth = obj.width
+        const oldHeight = obj.height
+
+        // 최소/최대 제한 확인
+        if (
+            (scale > 1 && (oldWidth >= maxSize || oldHeight >= maxSize)) ||
+            (scale < 1 && (oldWidth <= minSize || oldHeight <= minSize))
+        ) return
+
+        const newWidth = Math.min(maxSize, Math.max(minSize, oldWidth * scale))
+        const newHeight = Math.min(maxSize, Math.max(minSize, oldHeight * scale))
+
+        const centerX = obj.position.x + oldWidth / 2
+        const centerY = obj.position.y + oldHeight / 2
+
+        obj.width = newWidth
+        obj.height = newHeight
+        obj.position.x = centerX - newWidth / 2
+        obj.position.y = centerY - newHeight / 2
+
+        if (player.isOnPlatform === obj) {
+            player.position.y = obj.position.y - player.height + player.relativeY
+        }
+    })
 })
