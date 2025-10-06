@@ -231,8 +231,46 @@ addEventListener('keyup', ({keyCode}) => {
     }
 })
 
-addEventListener('wheel', (event) => {
-    const scale = event.deltaY < 0 ? 1.1 : 0.9
+// addEventListener('wheel', (event) => {
+//     const scale = event.deltaY < 0 ? 1.1 : 0.9
+//     const minSize = 20
+//     const maxSize = 500
+
+//     ;[...platforms, ...obstacles].forEach(obj => {
+//         const oldWidth = obj.width
+//         const oldHeight = obj.height
+
+//         // 최소/최대 제한 확인
+//         if (
+//             (scale > 1 && (oldWidth >= maxSize || oldHeight >= maxSize)) ||
+//             (scale < 1 && (oldWidth <= minSize || oldHeight <= minSize))
+//         ) return
+
+//         const newWidth = Math.min(maxSize, Math.max(minSize, oldWidth * scale))
+//         const newHeight = Math.min(maxSize, Math.max(minSize, oldHeight * scale))
+
+//         const centerX = obj.position.x + oldWidth / 2
+//         const centerY = obj.position.y + oldHeight / 2
+
+//         obj.width = newWidth
+//         obj.height = newHeight
+//         obj.position.x = centerX - newWidth / 2
+//         obj.position.y = centerY - newHeight / 2
+
+//         if (player.isOnPlatform === obj) {
+//             player.position.y = obj.position.y - player.height + player.relativeY
+//         }
+//     })
+// })
+
+const zoomSlider = document.getElementById('zoomSlider')
+let lastZoom = 1 // 이전 확대 비율 저장 (비교용)
+
+zoomSlider.addEventListener('input', (event) => {
+    const zoomValue = Number(event.target.value) / 100 // 100 → 1.0배 기준
+    const scale = zoomValue / lastZoom // 변화 비율 계산
+    lastZoom = zoomValue // 현재 비율 저장
+
     const minSize = 20
     const maxSize = 500
 
@@ -240,15 +278,11 @@ addEventListener('wheel', (event) => {
         const oldWidth = obj.width
         const oldHeight = obj.height
 
-        // 최소/최대 제한 확인
-        if (
-            (scale > 1 && (oldWidth >= maxSize || oldHeight >= maxSize)) ||
-            (scale < 1 && (oldWidth <= minSize || oldHeight <= minSize))
-        ) return
-
+        // 새 크기 계산
         const newWidth = Math.min(maxSize, Math.max(minSize, oldWidth * scale))
         const newHeight = Math.min(maxSize, Math.max(minSize, oldHeight * scale))
 
+        // 중심(anchor) 유지
         const centerX = obj.position.x + oldWidth / 2
         const centerY = obj.position.y + oldHeight / 2
 
@@ -257,6 +291,7 @@ addEventListener('wheel', (event) => {
         obj.position.x = centerX - newWidth / 2
         obj.position.y = centerY - newHeight / 2
 
+        // 플레이어가 플랫폼 위에 있다면 보정
         if (player.isOnPlatform === obj) {
             player.position.y = obj.position.y - player.height + player.relativeY
         }
