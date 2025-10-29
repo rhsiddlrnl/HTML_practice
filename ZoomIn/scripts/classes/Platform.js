@@ -1,5 +1,5 @@
 class Platform {
-  constructor({ x, y, size = 100, fixed = false }) {
+  constructor({ x, y, size = 40, fixed = false }) {
     this.position = { x, y }; // y는 바닥 높이
     this.baseSize = size;
     this.currentSize = size;

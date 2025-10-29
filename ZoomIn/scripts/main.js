@@ -230,7 +230,7 @@ function setSelected(id) {
 }
 
 buttons.small.addEventListener('click', () => {
-  scaleMode = 0.2;
+  scaleMode = 0.3;
   setSelected('small');
 });
 buttons.normal.addEventListener('click', () => {
@@ -238,6 +238,6 @@ buttons.normal.addEventListener('click', () => {
   setSelected('normal');
 });
 buttons.large.addEventListener('click', () => {
-  scaleMode = 1.5;
+  scaleMode = 3;
   setSelected('large');
 });
