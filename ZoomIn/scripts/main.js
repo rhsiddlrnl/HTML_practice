@@ -11,14 +11,30 @@ let scaleMode = 1;
 
 let player, platforms, obstacles, goal;
 
-function init() {
-  const map = loadMap(stage1);
+// 스테이지 관련 변수
+let currentStage = 1;
+const maxStage = 2; // 스테이지 개수
+
+// 스테이지 로드 함수
+function loadStage() {
+  let mapData;
+  switch (currentStage) {
+    case 1: mapData = stage1; break;
+    case 2: mapData = stage2; break;
+    default: mapData = stage1; break;
+  }
+  const map = loadMap(mapData);
   player = map.player;
   platforms = map.platforms;
   obstacles = map.obstacles;
   goal = map.goal;
+}
+
+function init() {
+  loadStage();
   gameClear = false;
   gameClearing = false;
+  console.log(`▶ Stage ${currentStage} 시작`);
 }
 
 function animate() {
@@ -37,19 +53,17 @@ function animate() {
   platforms.forEach(p => p.draw(c, player));
   obstacles.forEach(o => o.draw(c));
 
-  //클리어 애니메이션 중일 때
+  // 클리어 애니메이션
   if (gameClearing) {
-    // 플레이어가 골 중심으로 이동 + 회전 + 축소
     const targetX = goal.position.x - player.width / 2;
     const targetY = goal.position.y - player.height / 2;
 
     player.position.x += (targetX - player.position.x) * 0.1;
     player.position.y += (targetY - player.position.y) * 0.1;
 
-    player.rotation = (player.rotation || 0) + 0.3; // 회전
-    player.scale = (player.scale || 1) * 0.94;      // 축소
+    player.rotation = (player.rotation || 0) + 0.3;
+    player.scale = (player.scale || 1) * 0.94;
 
-    // 그리기
     c.save();
     c.translate(player.position.x + player.width / 2, player.position.y + player.height / 2);
     c.rotate(player.rotation);
@@ -58,38 +72,49 @@ function animate() {
     c.fillRect(-player.width / 2, -player.height / 2, player.width, player.height);
     c.restore();
 
-    // 일정 크기 이하로 작아지면 클리어 완료
+    // 🔹 클리어 완료 시
     if (player.scale < 0.05) {
       gameClearing = false;
-      gameClear = true;
-
-     // 플레이어를 화면 밖으로 이동시켜 보이지 않게 처리
       player.position.x = -9999;
       player.position.y = -9999;
+
+      // 다음 스테이지로 자동 이동
+      if (currentStage < maxStage) {
+        c.fillStyle = 'rgba(0,0,0,0.5)';
+        c.fillRect(0, 0, canvas.width, canvas.height);
+        c.fillStyle = 'white';
+        c.font = '40px sans-serif';
+        c.textAlign = 'center';
+        c.fillText(`Stage ${currentStage} Clear!`, canvas.width / 2, canvas.height / 2);
+        currentStage++;
+        setTimeout(init, 1200);
+      } else {
+        gameClear = true;
+      }
     }
     return;
   }
 
-  //일반 플레이어 동작
-  player.update(c, gravity);
-
+  // 최종 클리어 메시지
   if (gameClear) {
-    // 최종 클리어 메시지 출력
     c.fillStyle = 'rgba(0,0,0,0.5)';
     c.fillRect(0, 0, canvas.width, canvas.height);
     c.fillStyle = 'white';
     c.font = '48px sans-serif';
     c.textAlign = 'center';
-    c.fillText('Clear', canvas.width / 2, canvas.height / 2);
+    c.fillText('🎉 ALL STAGES CLEAR 🎉', canvas.width / 2, canvas.height / 2);
     return;
   }
+
+  // 플레이어 업데이트
+  player.update(c, gravity);
 
   // 이동
   player.velocity.x = 0;
   if (keys.left && player.position.x > 0) player.velocity.x = -5;
   if (keys.right && player.position.x + player.width < canvas.width) player.velocity.x = 5;
 
-  // 플랫폼 충돌 (모든 방향)
+  // 플랫폼 충돌
   platforms.forEach(p => {
     const hb = p.hitbox;
     const px = player.position.x;
@@ -198,9 +223,9 @@ const buttons = {
 
 function setSelected(id) {
   Object.values(buttons).forEach(btn => {
-    btn.classList.remove('selected')
+    btn.classList.remove('selected');
     btn.blur();
-});
+  });
   buttons[id].classList.add('selected');
 }
 
