@@ -27,12 +27,12 @@ function animate() {
   c.fillStyle = '#b9dfff';
   c.fillRect(0, 0, canvas.width, canvas.height);
 
-  // 바닥선 시각적으로 표시
+  // 바닥선
   c.fillStyle = '#888';
   c.fillRect(0, groundY, canvas.width, 20);
 
   goal.draw(c);
-  platforms.forEach(p => p.draw(c));
+  platforms.forEach(p => p.draw(c, player)); // 플레이어 정보 전달
   obstacles.forEach(o => o.draw(c));
   player.update(c, gravity);
 
@@ -51,62 +51,61 @@ function animate() {
   if (keys.left && player.position.x > 0) player.velocity.x = -5;
   if (keys.right && player.position.x + player.width < canvas.width) player.velocity.x = 5;
 
-// 플랫폼 충돌 (플레이어가 위에 서도록 정확히 조정)
-let standingPlatform = null;
-platforms.forEach(p => {
-  const hb = p.hitbox;
+  // 플랫폼 충돌 (모든 방향)
+  platforms.forEach(p => {
+    const hb = p.hitbox;
+    const px = player.position.x;
+    const py = player.position.y;
+    const pw = player.width;
+    const ph = player.height;
 
-  // 플랫폼 상단면과 플레이어 하단면이 거의 맞닿을 때
-  const playerBottom = player.position.y + player.height;
-  const platformTop = hb.y;
+    const overlapX = px + pw > hb.x && px < hb.x + hb.size;
+    const overlapY = py + ph > hb.y && py < hb.y + hb.size;
 
-  const horizontallyAligned =
-    player.position.x + player.width > hb.x &&
-    player.position.x < hb.x + hb.size;
+    if (overlapX && overlapY) {
+      const fromLeft = px + pw - hb.x;
+      const fromRight = hb.x + hb.size - px;
+      const fromTop = py + ph - hb.y;
+      const fromBottom = hb.y + hb.size - py;
+      const minOverlap = Math.min(fromLeft, fromRight, fromTop, fromBottom);
 
-  const verticallyTouching =
-    playerBottom <= platformTop + 10 && // 살짝 여유
-    playerBottom + player.velocity.y >= platformTop &&
-    player.velocity.y >= 0;
+      if (minOverlap === fromTop) {
+        player.velocity.y = 0;
+        player.position.y = hb.y - ph; // 위
+      } else if (minOverlap === fromBottom) {
+        player.velocity.y = 0.5;
+        player.position.y = hb.y + hb.size; // 아래
+      } else if (minOverlap === fromLeft) {
+        player.position.x = hb.x - pw; // 왼쪽
+      } else if (minOverlap === fromRight) {
+        player.position.x = hb.x + hb.size; // 오른쪽
+      }
+    }
+  });
 
-  if (horizontallyAligned && verticallyTouching) {
-    player.velocity.y = 0;
-    player.position.y = platformTop - player.height;
-    standingPlatform = p;
-  }
-});
+  // 장애물 충돌
+  obstacles.forEach(o => {
+    const hb = o.hitbox;
+    const collided =
+      player.position.x + player.width > hb.x &&
+      player.position.x < hb.x + hb.size &&
+      player.position.y + player.height > hb.y &&
+      player.position.y < hb.y + hb.size;
+    if (collided) init();
+  });
 
-player.isOnPlatform = standingPlatform;
+  // 골 충돌
+  const goalTop = goal.position.y - goal.size;
+  const goalLeft = goal.position.x - goal.size / 2;
+  const goalRight = goal.position.x + goal.size / 2;
+  const goalBottom = goal.position.y;
+  const reachedGoal =
+    player.position.x + player.width > goalLeft &&
+    player.position.x < goalRight &&
+    player.position.y + player.height > goalTop &&
+    player.position.y < goalBottom;
+  if (reachedGoal) gameClear = true;
 
-// 장애물 충돌 (hitbox 기준)
-obstacles.forEach(o => {
-  const hb = o.hitbox;
-  const collided =
-    player.position.x + player.width > hb.x &&
-    player.position.x < hb.x + hb.size &&
-    player.position.y + player.height > hb.y &&
-    player.position.y < hb.y + hb.size;
-
-  if (collided) {
-    init(); // 즉시 재시작
-  }
-});
-
-// 골 충돌 (center-bottom 피봇 반영)
-const goalTop = goal.position.y - goal.size;
-const goalLeft = goal.position.x - goal.size / 2;
-const goalRight = goal.position.x + goal.size / 2;
-const goalBottom = goal.position.y;
-
-const reachedGoal =
-  player.position.x + player.width > goalLeft &&
-  player.position.x < goalRight &&
-  player.position.y + player.height > goalTop &&
-  player.position.y < goalBottom;
-
-if (reachedGoal) {
-  gameClear = true;
-}
   // 바닥 충돌
   if (player.position.y + player.height >= groundY) {
     player.position.y = groundY - player.height;
@@ -116,7 +115,6 @@ if (reachedGoal) {
 
 init();
 animate();
-
 
 // 키 입력
 window.addEventListener('keydown', (e) => {
@@ -128,7 +126,7 @@ window.addEventListener('keydown', (e) => {
     case 'ArrowRight': keys.right = true; break;
     case 'w':
     case 'ArrowUp':
-      if (player.velocity.y === 0) player.velocity.y = -15;
+      if (Math.abs(player.velocity.y) < 1) player.velocity.y = -15;
       break;
   }
 });
@@ -141,7 +139,7 @@ window.addEventListener('keyup', (e) => {
   }
 });
 
-// 🎮 버튼으로 오브젝트 크기 조절
+// 버튼 확대축소
 const buttons = {
   small: document.getElementById('btn-small'),
   normal: document.getElementById('btn-normal'),
@@ -154,7 +152,7 @@ function setSelected(id) {
 }
 
 buttons.small.addEventListener('click', () => {
-  scaleMode = 0.2;
+  scaleMode = 0.8;
   setSelected('small');
 });
 buttons.normal.addEventListener('click', () => {
@@ -162,6 +160,6 @@ buttons.normal.addEventListener('click', () => {
   setSelected('normal');
 });
 buttons.large.addEventListener('click', () => {
-  scaleMode = 2;
+  scaleMode = 1.2;
   setSelected('large');
 });
