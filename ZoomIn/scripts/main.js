@@ -28,6 +28,7 @@ function loadStage() {
   }
   const map = loadMap(mapData);
   player = map.player;
+  player.isGrounded = false;
   platforms = map.platforms;
   obstacles = map.obstacles;
   goal = map.goal;
@@ -124,8 +125,8 @@ function animate() {
 
   // 이동
   player.velocity.x = 0;
-  if (keys.left && player.position.x > 0) player.velocity.x = -5;
-  if (keys.right && player.position.x + player.width < canvas.width) player.velocity.x = 5;
+  if (keys.left && player.position.x > 0) player.velocity.x = -3;
+  if (keys.right && player.position.x + player.width < canvas.width) player.velocity.x = 3;
 
   // 플랫폼 충돌
   platforms.forEach(p => {
@@ -148,6 +149,7 @@ function animate() {
       if (minOverlap === fromTop) {
         player.velocity.y = 0;
         player.position.y = hb.y - ph;
+        player.isGrounded = true;
       } else if (minOverlap === fromBottom) {
         player.velocity.y = 0.5;
         player.position.y = hb.y + hb.size;
@@ -198,6 +200,7 @@ function animate() {
   if (player.position.y + player.height >= groundY) {
     player.position.y = groundY - player.height;
     player.velocity.y = 0;
+    player.isGrounded = true;
   }
 }
 
