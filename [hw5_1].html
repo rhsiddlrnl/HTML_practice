@@ -1,0 +1,53 @@
+<!--
+
+학번 : 202211091
+
+이름 : 이성민
+
+과제설명 : 애니메이션으로 전환하기
+
+-->
+<!DOCTYPE html>
+<html>
+    <head>
+        <style>
+        div{
+            display: block;
+            width: 100px;
+            height: 100px;
+            background-color: red;
+            position: relative;
+            animation: Animation 5s;
+        }
+
+        @keyframes Animation {
+            0% {
+                background-color: red;
+                left: 0;
+                top: 0;
+            }
+            25% {
+                background-color: yellow;
+                left: 200px;
+                top: 0;
+            }
+            50% {
+                background-color: blue;
+                left: 200px;
+                top: 200px;
+            }
+            75% {
+                background-color: green;
+                left: 0;
+                top: 200px;
+            }
+            100% {
+                background-color: red;
+                left: 0;
+                top: 0;
+            }
+        }
+        </style>
+        <div></div>
+    </head>
+</html>
