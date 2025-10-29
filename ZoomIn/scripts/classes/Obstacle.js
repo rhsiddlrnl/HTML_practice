@@ -1,5 +1,5 @@
 class Obstacle {
-  constructor({ x, y, size = 80 }) {
+  constructor({ x, y, size = 100 }) {
     this.position = { x, y }; // y는 바닥 높이
     this.baseSize = size;
     this.currentSize = size;
