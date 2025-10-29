@@ -1,158 +1,263 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <title>Platform Game</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ZoomIn Platform Game</title>
   <style>
-    * { box-sizing: border-box; }
+    :root {
+      --aside-w: 150px;
+      --canvas-w: 800px;
+      --canvas-h: 500px;
+      --scale-box-w: 110px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      height: 100%;
+    }
+
     body {
-      margin: 0;
-      font-family: sans-serif;
-      height: 100vh;
       display: flex;
       flex-direction: column;
-      background-color: #e6f0ff;
+      min-height: 100vh;
+      background: #f4f4f4;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
     }
 
     header, footer {
-      background-color: #333;
-      color: white;
+      background: #333;
+      color: #fff;
+      font-weight: 700;
       text-align: center;
       padding: 10px 0;
+      flex-shrink: 0;
     }
 
+    /* 메인 전체 영역 (좌 aside + 중앙 article + 우 aside) */
     main {
       flex: 1;
       display: flex;
-      flex-direction: row;
+      height: 100%;
+      align-items: stretch;
     }
 
-    aside.left {
-      width: 15%;
-      background-color: #e6e6e6;
-      border-right: 2px solid #ccc;
+    aside {
+      width: var(--aside-w);
+      background: #ddd;
       display: flex;
       align-items: center;
       justify-content: center;
+      font-weight: 700;
+      height: 100%;
     }
 
+    aside.left { border-right: 3px solid #000; }
+    aside.right { border-left: 3px solid #000; }
+
+    /* 중앙 게임 구역 */
     article {
       flex: 1;
       display: flex;
-      justify-content: center;
-      align-items: center;
-      background-color: #f9f9f9;
-      border-left: 2px solid #ccc;
-      border-right: 2px solid #ccc;
-    }
-
-    aside.right {
-      width: 15%;
-      background-color: #e6e6e6;
-      border-left: 2px solid #ccc;
-      display: flex;
       align-items: center;
       justify-content: center;
+      background: #fff;
+      border: 3px solid #000;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,.25);
+      margin: 20px;
     }
 
-    .game-container {
+    #game-area {
       display: flex;
       flex-direction: row;
       align-items: center;
       justify-content: center;
-      gap: 20px;
-      width: 80%;
-      height: 80%;
-      max-width: 1000px;
-      max-height: 600px;
-      border: 2px solid #aaa;
-      background-color: white;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.2);
-      padding: 10px;
+      gap: 24px;
     }
 
-    .game-screen {
+    /* 왼쪽 크기조절 박스 */
+    #scale-box {
+      width: var(--scale-box-w);
+      height: var(--canvas-h);
+      border: 2px solid #000;
+      background: #f2f2f2;
       display: flex;
-      justify-content: center;
+      flex-direction: column;
       align-items: center;
+      justify-content: center;
+      gap: 10px;
+      z-index: 1;
+    }
+
+    #scale-box button {
+      width: 84px;
+      padding: 10px;
+      border: none;
+      border-radius: 8px;
+      background: #fff;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background .15s;
+    }
+
+    #scale-box button.selected {
+      background: #000;
+      color: #fff;
+    }
+
+    /* 게임 캔버스 구역 */
+    #game-wrapper {
+      position: relative;
+      width: var(--canvas-w);
+      height: var(--canvas-h);
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     canvas {
-      border: 2px solid #333;
-      border-radius: 5px;
-      background-color: #b9dfff;
+      width: var(--canvas-w);
+      height: var(--canvas-h);
+      border: 2px solid #000;
+      background: #fff;
+      display: none;
+      z-index: 1;
     }
 
-    .button-panel {
+    /* 스테이지 선택 화면 */
+    #stage-select {
+      position: absolute;
+      inset: 0;
+      background: #fff;
       display: flex;
       flex-direction: column;
-      justify-content: center;
       align-items: center;
-      gap: 10px;
+      justify-content: center;
+      gap: 18px;
+      z-index: 10;
+      pointer-events: auto;
+      transition: opacity .6s ease, transform .6s ease;
+      opacity: 1;
+      transform: scale(1);
     }
 
-    .button-panel button {
-      width: 80px;
-      height: 40px;
-      border: none;
-      border-radius: 5px;
+    #stage-select.fade-out {
+      opacity: 0;
+      transform: scale(.95);
+      pointer-events: none;
+    }
+
+    .stage-buttons {
+      display: flex;
+      gap: 14px;
+    }
+
+    .stage-btn {
+      padding: 12px 22px;
+      font-size: 16px;
+      border: 2px solid #333;
+      border-radius: 8px;
+      background: #fff;
       cursor: pointer;
-      background-color: #eee;
-      font-size: 14px;
-      transition: background 0.2s, transform 0.2s;
+      transition: transform .15s, background .15s;
     }
 
-    .button-panel button:hover {
-      background-color: #ddd;
+    .stage-btn.unlocked:hover {
       transform: scale(1.05);
+      background: #eee;
     }
 
-    .button-panel .selected {
-      background-color: #b0d4ff;
-      font-weight: bold;
+    .stage-btn.locked {
+      opacity: .55;
+      cursor: not-allowed;
+    }
+
+    /* 클리어 후 오버레이 버튼 */
+    #overlay-ui {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      gap: 16px;
+      padding-bottom: 36px;
+      z-index: 5;
+      pointer-events: none;
+    }
+
+    #overlay-ui button {
+      pointer-events: auto;
+      display: none;
+      padding: 12px 22px;
+      font-size: 18px;
+      border: none;
+      border-radius: 8px;
+      background: rgba(0,0,0,.85);
+      color: #fff;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform .15s, background .15s;
+    }
+
+    #overlay-ui button:hover {
+      transform: scale(1.05);
+      background: #000;
     }
   </style>
 </head>
 <body>
-  <header>
-    <h2>Zoom In Zoom Out</h2>
-  </header>
+  <header>Zoom In, Zoom Out</header>
 
   <main>
-    <aside class="left">
-      <h4>LEFT</h4>
-    </aside>
+    <aside class="left">LEFT</aside>
 
     <article>
-      <div class="game-container">
-        <div class="game-screen">
+      <section id="game-area">
+        <!-- 🎮 캔버스 먼저 -->
+        <div id="game-wrapper">
           <canvas width="800" height="500"></canvas>
+
+          <div id="stage-select">
+            <h2 style="margin:0; font-size:28px;">스테이지 선택</h2>
+            <div class="stage-buttons">
+              <button class="stage-btn" data-stage="1">Stage 1</button>
+              <button class="stage-btn locked" data-stage="2" disabled>🔒 Stage 2</button>
+            </div>
+          </div>
+
+          <div id="overlay-ui">
+            <button id="btn-next">다음 단계</button>
+            <button id="btn-restart">다시 시작</button>
+            <button id="btn-select">스테이지 선택</button>
+          </div>
         </div>
-        <div class="button-panel">
+
+        <!-- ⚙️ 크기조절 박스를 오른쪽으로 이동 -->
+        <div id="scale-box">
           <button id="btn-small">작게</button>
-          <button id="btn-normal" class="selected">기본</button>
+          <button id="btn-normal" class="selected">보통</button>
           <button id="btn-large">크게</button>
         </div>
-      </div>
+      </section>
     </article>
 
-    <aside class="right">
-      <h4>RIGHT</h4>
-    </aside>
+    <aside class="right">RIGHT</aside>
   </main>
 
-  <footer>
-    <p>Team 2</p>
-  </footer>
+  <footer>© 2025 Team2 Project</footer>
 
+  <!-- 클래스들 -->
   <script src="scripts/classes/Player.js"></script>
   <script src="scripts/classes/Platform.js"></script>
   <script src="scripts/classes/Obstacle.js"></script>
   <script src="scripts/classes/Goal.js"></script>
   <script src="scripts/classes/MapLoader.js"></script>
+  <!-- 맵들 -->
   <script src="scripts/maps/stage1.js"></script>
   <script src="scripts/maps/stage2.js"></script>
+  <!-- 메인 -->
   <script src="scripts/main.js"></script>
 </body>
 </html>

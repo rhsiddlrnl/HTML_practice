@@ -4,6 +4,9 @@ const c = canvas.getContext('2d');
 const gravity = 0.5;
 const groundY = 480; // 바닥선 기준
 
+let unlockedStages = 1; // 현재 해금된 스테이지 수
+let inStageSelect = true;
+
 let gameClear = false;
 let gameClearing = false; // 골인 애니메이션 중 여부
 let keys = { left: false, right: false };
@@ -78,18 +81,28 @@ function animate() {
       player.position.x = -9999;
       player.position.y = -9999;
 
-      // 다음 스테이지로 자동 이동
+      if (currentStage < maxStage && unlockedStages === currentStage) unlockedStages++;
+
       if (currentStage < maxStage) {
+      // 다음 스테이지 전용 클리어 메시지
         c.fillStyle = 'rgba(0,0,0,0.5)';
         c.fillRect(0, 0, canvas.width, canvas.height);
         c.fillStyle = 'white';
         c.font = '40px sans-serif';
         c.textAlign = 'center';
         c.fillText(`Stage ${currentStage} Clear!`, canvas.width / 2, canvas.height / 2);
-        currentStage++;
-        setTimeout(init, 1200);
+
+        // 1초 뒤 버튼 표시
+        setTimeout(() => {
+          document.getElementById('btn-next').style.display = 'inline-block';
+          document.getElementById('btn-restart').style.display = 'inline-block';
+          document.getElementById('btn-select').style.display = 'inline-block';
+        }, 1000);
       } else {
-        gameClear = true;
+      gameClear = true;
+      // 마지막 스테이지에서도 버튼 표시
+      document.getElementById('btn-restart').style.display = 'inline-block';
+      document.getElementById('btn-select').style.display = 'inline-block';
       }
     }
     return;
@@ -102,7 +115,7 @@ function animate() {
     c.fillStyle = 'white';
     c.font = '48px sans-serif';
     c.textAlign = 'center';
-    c.fillText('🎉 ALL STAGES CLEAR 🎉', canvas.width / 2, canvas.height / 2);
+    c.fillText('Clear', canvas.width / 2, canvas.height / 2);
     return;
   }
 
@@ -241,3 +254,74 @@ buttons.large.addEventListener('click', () => {
   scaleMode = 3;
   setSelected('large');
 });
+
+function showStageSelect() {
+  const selectUI = document.getElementById('stage-select');
+  const canvas = document.querySelector('canvas');
+
+  selectUI.style.display = 'block';
+  canvas.style.display = 'none';
+
+  // 스테이지 잠금 상태 업데이트
+  document.querySelectorAll('.stage-btn').forEach(btn => {
+    const stageNum = parseInt(btn.dataset.stage);
+    if (stageNum <= unlockedStages) {
+      btn.disabled = false;
+      btn.classList.remove('locked');
+      btn.classList.add('unlocked');
+      btn.textContent = `Stage ${stageNum}`;
+    } else {
+      btn.disabled = true;
+      btn.classList.remove('unlocked');
+      btn.classList.add('locked');
+      btn.textContent = `🔒 Stage ${stageNum}`;
+    }
+  });
+}
+
+document.querySelectorAll('.stage-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const stageNum = parseInt(btn.dataset.stage);
+    currentStage = stageNum;
+    inStageSelect = false;
+
+    // UI 전환
+    document.getElementById('stage-select').style.display = 'none';
+    document.querySelector('canvas').style.display = 'block';
+
+    init(); // 게임 시작
+  });
+});
+
+window.onload = () => {
+  showStageSelect();
+};
+
+document.getElementById('btn-next').addEventListener('click', () => {
+  if (currentStage < maxStage) {
+    currentStage++;
+    hideOverlayButtons();
+    init();
+  } else {
+    alert("모든 스테이지를 클리어했습니다!");
+  }
+});
+
+// 다시 시작 버튼
+document.getElementById('btn-restart').addEventListener('click', () => {
+  hideOverlayButtons();
+  init();
+});
+
+// 스테이지 선택 버튼
+document.getElementById('btn-select').addEventListener('click', () => {
+  hideOverlayButtons();
+  showStageSelect();
+});
+
+// 버튼 숨김 함수
+function hideOverlayButtons() {
+  document.getElementById('btn-next').style.display = 'none';
+  document.getElementById('btn-restart').style.display = 'none';
+  document.getElementById('btn-select').style.display = 'none';
+}
