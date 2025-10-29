@@ -77,10 +77,10 @@ function animate() {
     // 최종 클리어 메시지 출력
     c.fillStyle = 'rgba(0,0,0,0.5)';
     c.fillRect(0, 0, canvas.width, canvas.height);
-    c.fillStyle = 'yellow';
+    c.fillStyle = 'white';
     c.font = '48px sans-serif';
     c.textAlign = 'center';
-    c.fillText('🎉 Game Clear! 🎉', canvas.width / 2, canvas.height / 2);
+    c.fillText('Clear', canvas.width / 2, canvas.height / 2);
     return;
   }
 
@@ -129,7 +129,11 @@ function animate() {
       player.position.x < hb.x + hb.size &&
       player.position.y + player.height > hb.y &&
       player.position.y < hb.y + hb.size;
-    if (collided) init();
+    if (collided) {
+      init();
+      scaleMode = 1;
+      setSelected('normal');
+    }
   });
 
   // 골 충돌 → 흡입 애니메이션 시작
@@ -193,7 +197,10 @@ const buttons = {
 };
 
 function setSelected(id) {
-  Object.values(buttons).forEach(btn => btn.classList.remove('selected'));
+  Object.values(buttons).forEach(btn => {
+    btn.classList.remove('selected')
+    btn.blur();
+});
   buttons[id].classList.add('selected');
 }
 
