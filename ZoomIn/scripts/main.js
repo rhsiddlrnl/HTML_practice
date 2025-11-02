@@ -2,7 +2,7 @@ const canvas = document.querySelector('canvas');
 const c = canvas.getContext('2d');
 
 const gravity = 0.5;
-const groundY = 480; // 바닥선 기준
+let groundY; // 바닥선 기준
 
 let unlockedStages = 1; // 현재 해금된 스테이지 수
 let inStageSelect = true;
@@ -13,6 +13,7 @@ let keys = { left: false, right: false };
 let scaleMode = 1;
 
 let player, platforms, obstacles, goal;
+let lavas = [];
 let missiles = [];
 // 스테이지 관련 변수
 let currentStage = 1;
@@ -31,8 +32,10 @@ function loadStage() {
   player.isGrounded = false;
   platforms = map.platforms;
   obstacles = map.obstacles;
+  lavas = map.lavas;
   missiles = map.missiles;
   goal = map.goal;
+  groundY = map.groundY;
 }
 
 function init() {
@@ -50,14 +53,15 @@ function animate() {
   c.fillStyle = 'white';
   c.fillRect(0, 0, canvas.width, canvas.height);
 
-  // 바닥선
-  c.fillStyle = '#888';
-  c.fillRect(0, groundY, canvas.width, 20);
+  if (groundY !== null) {
+    c.fillStyle = '#888';
+    c.fillRect(0, groundY, canvas.width, 20);
+  }
 
   goal.draw(c);
   platforms.forEach(p => p.draw(c, player));
   obstacles.forEach(o => o.draw(c));
-
+  lavas.forEach(l => l.draw(c));
   missiles.forEach(m => {
   m.update(c, player, platforms, obstacles);
   m.draw(c);
@@ -182,6 +186,20 @@ function animate() {
     }
   });
 
+  lavas.forEach(l => {
+    const hb = l.hitbox;
+    const collided =
+      player.position.x + player.width > hb.x &&
+      player.position.x < hb.x + hb.width &&
+      player.position.y + player.height > hb.y &&
+      player.position.y < hb.y + hb.height;
+    if (collided) {
+      init();
+      scaleMode = 1;
+      setSelected("normal");
+    }
+  });
+
   // 골 충돌
   const goalTop = goal.position.y - goal.size;
   const goalLeft = goal.position.x - goal.size / 2;
@@ -204,10 +222,22 @@ function animate() {
   }
 
   // 바닥 충돌
-  if (player.position.y + player.height >= groundY) {
-    player.position.y = groundY - player.height;
-    player.velocity.y = 0;
-    player.isGrounded = true;
+  if (groundY !== null && groundY !== undefined) {
+    if (player.position.y + player.height >= groundY) {
+      player.position.y = groundY - player.height;
+      player.velocity.y = 0;
+      player.isGrounded = true;
+    }
+  } else {
+    player.isGrounded = false;
+
+    if (player.position.y > canvas.height + 100) {
+    init();
+    scaleMode = 1;
+    setSelected('normal');
+    return;
+  }
+
   }
 }
 

@@ -1,15 +1,17 @@
 const stage2 = {
   name: "Stage 2",
-  playerStart: { x: 100, y: 430 }, // 플레이어 바닥선 기준
-  goal: { x: 700, y: 480 },
+  playerStart: { x: 100, y: 200 },
+  goal: { x: 750, y: 150 },
+  groundY: null,
   platforms: [
-    { x: 200, y: 480 }, // 바닥선 위
-    { x: 400, y: 380 }, // 공중 발판
+    { x: 100, y: 280, size: 40 },
+    { x: 400, y: 400, size: 40 },
+    { x: 600, y: 320, size: 40 }
   ],
   obstacles: [
-    { x: 550, y: 480 }  // 바닥 위 장애물
   ],
-  missiles: [
-    { x: 100, y: 100, speed: 2, delay: 3}
-  ]
+  lavas: [
+    { x: 400, y: 500, width: 800, height: 30 }
+  ],
+  missiles: []
 };

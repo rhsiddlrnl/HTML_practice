@@ -10,7 +10,7 @@ class Obstacle {
     this.currentSize += (this.baseSize * scaleMode - this.currentSize) * 0.2;
     const s = this.currentSize;
 
-    // 피봇
+    // center-bottom 피봇
     const drawX = this.position.x - s / 2;
     const drawY = this.position.y - s; // 바닥 기준
 
