@@ -5,5 +5,8 @@ const stage1 = {
   platforms: [
   ],
   obstacles: [
+  ],
+  missiles: [
+    { x: 100, y: 100, speed: 2, delay : 3 }
   ]
 };

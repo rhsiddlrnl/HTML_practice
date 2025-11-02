@@ -13,7 +13,7 @@ let keys = { left: false, right: false };
 let scaleMode = 1;
 
 let player, platforms, obstacles, goal;
-
+let missiles = [];
 // 스테이지 관련 변수
 let currentStage = 1;
 const maxStage = 2; // 스테이지 개수
@@ -31,6 +31,7 @@ function loadStage() {
   player.isGrounded = false;
   platforms = map.platforms;
   obstacles = map.obstacles;
+  missiles = map.missiles;
   goal = map.goal;
 }
 
@@ -57,6 +58,11 @@ function animate() {
   platforms.forEach(p => p.draw(c, player));
   obstacles.forEach(o => o.draw(c));
 
+  missiles.forEach(m => {
+  m.update(c, player, platforms, obstacles);
+  m.draw(c);
+  });
+
   // 클리어 애니메이션
   if (gameClearing) {
     const targetX = goal.position.x - player.width / 2;
@@ -76,7 +82,7 @@ function animate() {
     c.fillRect(-player.width / 2, -player.height / 2, player.width, player.height);
     c.restore();
 
-    // 🔹 클리어 완료 시
+    // 클리어 완료 시
     if (player.scale < 0.05) {
       gameClearing = false;
       player.position.x = -9999;
@@ -136,14 +142,14 @@ function animate() {
     const pw = player.width;
     const ph = player.height;
 
-    const overlapX = px + pw > hb.x && px < hb.x + hb.size;
-    const overlapY = py + ph > hb.y && py < hb.y + hb.size;
+    const overlapX = px + pw > hb.x && px < hb.x + hb.width;
+    const overlapY = py + ph > hb.y && py < hb.y + hb.height;
 
     if (overlapX && overlapY) {
       const fromLeft = px + pw - hb.x;
-      const fromRight = hb.x + hb.size - px;
+      const fromRight = hb.x + hb.width - px;
       const fromTop = py + ph - hb.y;
-      const fromBottom = hb.y + hb.size - py;
+      const fromBottom = hb.y + hb.height - py;
       const minOverlap = Math.min(fromLeft, fromRight, fromTop, fromBottom);
 
       if (minOverlap === fromTop) {
@@ -152,11 +158,11 @@ function animate() {
         player.isGrounded = true;
       } else if (minOverlap === fromBottom) {
         player.velocity.y = 0.5;
-        player.position.y = hb.y + hb.size;
+        player.position.y = hb.y + hb.height;
       } else if (minOverlap === fromLeft) {
         player.position.x = hb.x - pw;
       } else if (minOverlap === fromRight) {
-        player.position.x = hb.x + hb.size;
+        player.position.x = hb.x + hb.width;
       }
     }
   });
@@ -176,7 +182,7 @@ function animate() {
     }
   });
 
-  // 골 충돌 → 흡입 애니메이션 시작
+  // 골 충돌
   const goalTop = goal.position.y - goal.size;
   const goalLeft = goal.position.x - goal.size / 2;
   const goalRight = goal.position.x + goal.size / 2;
@@ -194,6 +200,7 @@ function animate() {
     player.rotation = 0;
     player.scale = 1;
     gameClearing = true;
+    missiles = [];
   }
 
   // 바닥 충돌

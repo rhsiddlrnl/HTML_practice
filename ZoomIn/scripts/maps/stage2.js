@@ -8,5 +8,8 @@ const stage2 = {
   ],
   obstacles: [
     { x: 550, y: 480 }  // 바닥 위 장애물
+  ],
+  missiles: [
+    { x: 100, y: 100, speed: 2, delay: 3}
   ]
 };

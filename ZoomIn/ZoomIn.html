@@ -35,7 +35,6 @@
       flex-shrink: 0;
     }
 
-    /* 메인 전체 영역 (좌 aside + 중앙 article + 우 aside) */
     main {
       flex: 1;
       display: flex;
@@ -56,7 +55,6 @@
     aside.left { border-right: 3px solid #000; }
     aside.right { border-left: 3px solid #000; }
 
-    /* 중앙 게임 구역 */
     article {
       flex: 1;
       display: flex;
@@ -77,7 +75,6 @@
       gap: 24px;
     }
 
-    /* 왼쪽 크기조절 박스 */
     #scale-box {
       width: var(--scale-box-w);
       height: var(--canvas-h);
@@ -107,7 +104,6 @@
       color: #fff;
     }
 
-    /* 게임 캔버스 구역 */
     #game-wrapper {
       position: relative;
       width: var(--canvas-w);
@@ -126,7 +122,6 @@
       z-index: 1;
     }
 
-    /* 스테이지 선택 화면 */
     #stage-select {
       position: absolute;
       inset: 0;
@@ -174,7 +169,6 @@
       cursor: not-allowed;
     }
 
-    /* 클리어 후 오버레이 버튼 */
     #overlay-ui {
       position: absolute;
       inset: 0;
@@ -215,12 +209,11 @@
 
     <article>
       <section id="game-area">
-        <!-- 🎮 캔버스 먼저 -->
         <div id="game-wrapper">
           <canvas width="800" height="500"></canvas>
 
           <div id="stage-select">
-            <h2 style="margin:0; font-size:28px;">스테이지 선택</h2>
+            <h2 style="margin:0; font-size:28px; text-align: center;">스테이지 선택</h2>
             <div class="stage-buttons">
               <button class="stage-btn" data-stage="1">Stage 1</button>
               <button class="stage-btn locked" data-stage="2" disabled>🔒 Stage 2</button>
@@ -234,7 +227,6 @@
           </div>
         </div>
 
-        <!-- ⚙️ 크기조절 박스를 오른쪽으로 이동 -->
         <div id="scale-box">
           <button id="btn-small">작게</button>
           <button id="btn-normal" class="selected">보통</button>
@@ -253,6 +245,7 @@
   <script src="scripts/classes/Platform.js"></script>
   <script src="scripts/classes/Obstacle.js"></script>
   <script src="scripts/classes/Goal.js"></script>
+  <script src="scripts/classes/Missile.js"></script>
   <script src="scripts/classes/MapLoader.js"></script>
   <!-- 맵들 -->
   <script src="scripts/maps/stage1.js"></script>

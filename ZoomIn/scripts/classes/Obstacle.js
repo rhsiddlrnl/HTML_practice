@@ -10,14 +10,14 @@ class Obstacle {
     this.currentSize += (this.baseSize * scaleMode - this.currentSize) * 0.2;
     const s = this.currentSize;
 
-    // center-bottom 피봇
+    // 피봇
     const drawX = this.position.x - s / 2;
     const drawY = this.position.y - s; // 바닥 기준
 
     ctx.fillStyle = 'red';
     ctx.fillRect(drawX, drawY, s, s);
 
-    // 실제 충돌용 히트박스 (정사각형 하단 기준)
+    // 실제 충돌용 히트박스
     this.hitbox = { x: drawX, y: drawY, size: s };
   }
 }
