@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="css/game_style.css">
+</head>
+
+<body>
+    <section id="game-area">
+        <div id="game-wrapper">
+            <canvas width="800" height="500"></canvas>
+
+            <div id="stage-select">
+                <h2 style="margin:0; font-size:28px; text-align: center;">스테이지 선택</h2>
+                <div class="stage-buttons">
+                    <button class="stage-btn" data-stage="1">Stage 1</button>
+                    <button class="stage-btn locked" data-stage="2" disabled>🔒 Stage 2</button>
+                </div>
+            </div>
+
+            <div id="overlay-ui">
+                <button id="btn-next">다음 단계</button>
+                <button id="btn-restart">다시 시작</button>
+                <button id="btn-select">스테이지 선택</button>
+            </div>
+        </div>
+
+        <div id="scale-box">
+            <button id="btn-small">작게</button>
+            <button id="btn-normal" class="selected">보통</button>
+            <button id="btn-large">크게</button>
+        </div>
+    </section>
+    <!-- 클래스들 -->
+    <script src="scripts/classes/Player.js"></script>
+    <script src="scripts/classes/Platform.js"></script>
+    <script src="scripts/classes/Obstacle.js"></script>
+    <script src="scripts/classes/Lava.js"></script>
+    <script src="scripts/classes/Goal.js"></script>
+    <script src="scripts/classes/Missile.js"></script>
+    <script src="scripts/classes/MapLoader.js"></script>
+    <!-- 맵들 -->
+    <script src="scripts/maps/stage1.js"></script>
+    <script src="scripts/maps/stage2.js"></script>
+    <!-- 메인 -->
+    <script src="scripts/main.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,152 @@
+:root {
+    --canvas-w: 800px;
+    --canvas-h: 500px;
+    --scale-box-w: 110px;
+}
+
+
+html,
+body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+        font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+
+}
+
+#game-area {
+    height: 100%;
+    width: 100%;
+    
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+}
+
+#scale-box {
+    width: var(--scale-box-w);
+    height: var(--canvas-h);
+    border: 2px solid #000;
+    background: #f2f2f2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    z-index: 1;
+}
+
+#scale-box button {
+    width: 84px;
+    padding: 10px;
+    border: none;
+    border-radius: 8px;
+    background: #fff;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background .15s;
+}
+
+#scale-box button.selected {
+    background: #000;
+    color: #fff;
+}
+
+#game-wrapper {
+    position: relative;
+    width: var(--canvas-w);
+    height: var(--canvas-h);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+canvas {
+    width: var(--canvas-w);
+    height: var(--canvas-h);
+    border: 2px solid #000;
+    background: #fff;
+    display: none;
+    z-index: 1;
+}
+
+#stage-select {
+    position: absolute;
+    inset: 0;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+    z-index: 10;
+    pointer-events: auto;
+    transition: opacity .6s ease, transform .6s ease;
+    opacity: 1;
+    transform: scale(1);
+}
+
+#stage-select.fade-out {
+    opacity: 0;
+    transform: scale(.95);
+    pointer-events: none;
+}
+
+.stage-buttons {
+    display: flex;
+    gap: 14px;
+}
+
+.stage-btn {
+    padding: 12px 22px;
+    font-size: 16px;
+    border: 2px solid #333;
+    border-radius: 8px;
+    background: #fff;
+    cursor: pointer;
+    transition: transform .15s, background .15s;
+}
+
+.stage-btn.unlocked:hover {
+    transform: scale(1.05);
+    background: #eee;
+}
+
+.stage-btn.locked {
+    opacity: .55;
+    cursor: not-allowed;
+}
+
+#overlay-ui {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 16px;
+    padding-bottom: 36px;
+    z-index: 5;
+    pointer-events: none;
+}
+
+#overlay-ui button {
+    pointer-events: auto;
+    display: none;
+    padding: 12px 22px;
+    font-size: 18px;
+    border: none;
+    border-radius: 8px;
+    background: rgba(0, 0, 0, .85);
+    color: #fff;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform .15s, background .15s;
+}
+
+#overlay-ui button:hover {
+    transform: scale(1.05);
+    background: #000;
+}

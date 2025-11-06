@@ -9,9 +9,7 @@ class Platform {
   draw(ctx, player = null) {
     // 좌우로만
     const prevW = this.currentWidth;
-    if(!this.fixed){
-      this.currentWidth += (this.baseSize * scaleMode - this.currentWidth) * 0.2;
-    }
+    if( !this.fixed ) this.currentWidth += (this.baseSize * scaleMode - this.currentWidth) * 0.2;
 
     const width = this.currentWidth;
     const height = this.baseSize; // 세로 크기는 고정

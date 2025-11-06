@@ -13,5 +13,7 @@ const stage2 = {
   lavas: [
     { x: 400, y: 500, width: 800, height: 30 }
   ],
-  missiles: []
+  missiles: [
+    { x: 100, y: 100, speed: 2, delay : 0 }
+  ]
 };
