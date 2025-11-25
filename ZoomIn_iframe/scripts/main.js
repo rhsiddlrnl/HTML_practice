@@ -1,10 +1,32 @@
+const TIPS_MAP = {
+    1: "이동 및 점프: <span style='font-weight: 700; color: #ff6f61;'>방향키</span> 혹은 <span style='font-weight: 700; color: #1e88e5;'>wasd</span>",
+    
+    2: "<span style='font-weight: 700; color: #ff6f61;'>용암</span>에 빠지지 마세요!",
+
+    4: "<span style='font-weight: 700; color: #ff6f61;'>붉은색 오브젝트</span>는 위험합니다!",
+    
+    6: "<span style='font-weight: 700; color: #ff6f61;'>미사일</span>에게서 도망치세요!",
+    
+    7: "<span style='font-weight: 700; color: #ff6f61;'>미사일</span>은 <span style='font-weight: 700; color: #1e88e5;'>오브젝트에 부딪히면 파괴</span>됩니다!",
+    
+    default: "<span style='font-weight: 700; color: #1e88e5;'>크기를 조절</span>해 목표에 도달하세요!",
+
+};
+
+
+
 const canvas = document.querySelector('canvas');
 const c = canvas.getContext('2d');
+
+c.imageSmoothingEnabled = false;
+c.mozImageSmoothingEnabled = false;
+c.webkitImageSmoothingEnabled = false;
+c.msImageSmoothingEnabled = false;
 
 const gravity = 0.5;
 let groundY; // 바닥선 기준
 
-let unlockedStages = 1; // 현재 해금된 스테이지 수
+let unlockedStages = 8; // 현재 해금된 스테이지 수
 let inStageSelect = true;
 
 let gameClear = false;
@@ -17,7 +39,7 @@ let lavas = [];
 let missiles = [];
 // 스테이지 관련 변수
 let currentStage = 1;
-const maxStage = 2; // 스테이지 개수
+const maxStage = 8; // 스테이지 개수
 
 // 스테이지 로드 함수
 function loadStage() {
@@ -25,10 +47,18 @@ function loadStage() {
   switch (currentStage) {
     case 1: mapData = stage1; break;
     case 2: mapData = stage2; break;
+    case 3: mapData = stage3; break;
+    case 4: mapData = stage4; break;
+    case 5: mapData = stage5; break;
+    case 6: mapData = stage6; break;
+    case 7: mapData = stage7; break;
+    case 8: mapData = stage8; break;
     default: mapData = stage1; break;
   }
   const map = loadMap(mapData);
   player = map.player;
+
+  
   player.isGrounded = false;
   platforms = map.platforms;
   obstacles = map.obstacles;
@@ -42,7 +72,9 @@ function init() {
   loadStage();
   gameClear = false;
   gameClearing = false;
-  console.log(`▶ Stage ${currentStage} 시작`);
+  console.log(`Stage ${currentStage} 시작`);
+
+  updateTipPopup(currentStage);
 }
 
 //프레임 고정용
@@ -68,8 +100,7 @@ function animate(timestamp = 0) {
   obstacles.forEach(o => o.draw(c));
   lavas.forEach(l => l.draw(c));
   missiles.forEach(m => {
-  m.update(c, player, platforms, obstacles);
-  m.draw(c);
+  m.update(c, player, platforms, obstacles, deltaTime);
   });
 
   // 클리어 애니메이션
@@ -87,7 +118,7 @@ function animate(timestamp = 0) {
     c.translate(player.position.x + player.width / 2, player.position.y + player.height / 2);
     c.rotate(player.rotation);
     c.scale(player.scale, player.scale);
-    c.fillStyle = 'black';
+    c.drawImage(player.img);
     c.fillRect(-player.width / 2, -player.height / 2, player.width, player.height);
     c.restore();
 
@@ -131,7 +162,7 @@ function animate(timestamp = 0) {
     c.fillStyle = 'white';
     c.font = '48px sans-serif';
     c.textAlign = 'center';
-    c.fillText('Clear', canvas.width / 2, canvas.height / 2);
+    c.fillText('GAME CLEAR', canvas.width / 2, canvas.height / 2);
     return;
   }
 
@@ -140,9 +171,16 @@ function animate(timestamp = 0) {
 
   // 이동
   player.velocity.x = 0;
-  if (keys.left && player.position.x > 0) player.velocity.x = -5;
-  if (keys.right && player.position.x + player.width < canvas.width) player.velocity.x = 5;
+  if (keys.left && player.position.x > 0){
+    player.velocity.x = -5;
+    player.facing = -1;
+  }
+  if (keys.right && player.position.x + player.width < canvas.width){
+    player.velocity.x = 5;
+    player.facing = 1;
+  }
 
+  let grounded = false;
   // 플랫폼 충돌
   platforms.forEach(p => {
     const hb = p.hitbox;
@@ -152,7 +190,7 @@ function animate(timestamp = 0) {
     const ph = player.height;
 
     const overlapX = px + pw > hb.x && px < hb.x + hb.width;
-    const overlapY = py + ph > hb.y && py < hb.y + hb.height;
+    const overlapY = py + ph >= hb.y && py < hb.y + hb.height;
 
     if (overlapX && overlapY) {
       const fromLeft = px + pw - hb.x;
@@ -165,6 +203,7 @@ function animate(timestamp = 0) {
         player.velocity.y = 0;
         player.position.y = hb.y - ph;
         player.isGrounded = true;
+        grounded = true;
       } else if (minOverlap === fromBottom) {
         player.velocity.y = 0.5;
         player.position.y = hb.y + hb.height;
@@ -172,6 +211,8 @@ function animate(timestamp = 0) {
         player.position.x = hb.x - pw;
       } else if (minOverlap === fromRight) {
         player.position.x = hb.x + hb.width;
+      }else{
+        player.isGrounded = false;
       }
     }
   });
@@ -185,6 +226,7 @@ function animate(timestamp = 0) {
       player.position.y + player.height > hb.y &&
       player.position.y < hb.y + hb.size;
     if (collided) {
+      player.playDeathSound();
       init();
       scaleMode = 1;
       setSelected('normal');
@@ -199,6 +241,7 @@ function animate(timestamp = 0) {
       player.position.y + player.height > hb.y &&
       player.position.y < hb.y + hb.height;
     if (collided) {
+      player.playDeathSound();
       init();
       scaleMode = 1;
       setSelected("normal");
@@ -231,19 +274,22 @@ function animate(timestamp = 0) {
     if (player.position.y + player.height >= groundY) {
       player.position.y = groundY - player.height;
       player.velocity.y = 0;
+      grounded = true;
       player.isGrounded = true;
     }
   } else {
     player.isGrounded = false;
 
     if (player.position.y > canvas.height + 100) {
-    init();
-    scaleMode = 1;
-    setSelected('normal');
-    return;
+      player.playDeathSound();
+      init();
+      scaleMode = 1;
+      setSelected('normal');
+      return;
+    }
   }
-
-  }
+  player.isGrounded = grounded;
+  console.log(player.isGrounded);
 }
 
 init();
@@ -259,7 +305,13 @@ window.addEventListener('keydown', (e) => {
     case 'ArrowRight': keys.right = true; break;
     case 'w':
     case 'ArrowUp':
-      if (Math.abs(player.velocity.y) < 1) player.velocity.y = -11;
+      if (player && player.isGrounded) {
+        player.velocity.y = -10;
+        player.isGrounded = false;
+
+        player.playJumpSound();
+    
+      }
       break;
   }
 });
@@ -303,9 +355,13 @@ buttons.large.addEventListener('click', () => {
 function showStageSelect() {
   const selectUI = document.getElementById('stage-select');
   const canvas = document.querySelector('canvas');
+  const scaleBox = document.getElementById('scale-box');
+  
 
   selectUI.style.display = 'block';
   canvas.style.display = 'none';
+  scaleBox.style.display = 'none';
+  
 
   // 스테이지 잠금 상태 업데이트
   document.querySelectorAll('.stage-btn').forEach(btn => {
@@ -333,6 +389,8 @@ document.querySelectorAll('.stage-btn').forEach(btn => {
     // UI 전환
     document.getElementById('stage-select').style.display = 'none';
     document.querySelector('canvas').style.display = 'block';
+    document.getElementById('scale-box').style.display = 'flex';
+    
 
     init(); // 게임 시작
   });
@@ -399,44 +457,60 @@ function getGameAreaGap()
   return parseFloat(gapValue.replace('px', '')) || 0;
 }
 
-//부모 컨테이너 크기 기반 게임화면 비율 유지
-function resizeGame()
-{
-  console.log('resizeGame on');
+// //부모 컨테이너 크기 기반 게임화면 비율 유지
+// function resizeGame()
+// {
+//   console.log('resizeGame on');
 
-  const gameArea = document.getElementById('game-area');
+//   const gameArea = document.getElementById('game-area');
   
-  //게임 원본 기준 크기 정의
-  //가로 크기 구성: 캔버스 폭 + 스케일 박스 폭 + gap
-  const canvasWidth = getCssVarValue('--canvas-w');
-  const scaleBoxWidth = getCssVarValue('--scale-box-w');
-  const gapWidth = getGameAreaGap();
+//   //게임 원본 기준 크기 정의
+//   //가로 크기 구성: 캔버스 폭 + 스케일 박스 폭 + gap
+//   const canvasWidth = getCssVarValue('--canvas-w');
+//   const scaleBoxWidth = getCssVarValue('--scale-box-w');
+//   const gapWidth = getGameAreaGap();
 
   
-  const baseWidth = canvasWidth + scaleBoxWidth + gapWidth;
-  const baseHeight = getCssVarValue('--canvas-h');
+//   const baseWidth = canvasWidth + scaleBoxWidth + gapWidth;
+//   const baseHeight = getCssVarValue('--canvas-h');
 
-  //현재 iframe 사용 가능 크기
-  const availableWidth = window.innerWidth;
-  const availableHeigh = window.innerHeight;
+//   //현재 iframe 사용 가능 크기
+//   const availableWidth = window.innerWidth;
+//   const availableHeigh = window.innerHeight;
 
-  //비율 계산 및 최종 값 산출
-  const widthRatio = availableWidth / baseWidth;
-  const heightRatio = availableHeigh / baseHeight;
+//   //비율 계산 및 최종 값 산출
+//   const widthRatio = availableWidth / baseWidth;
+//   const heightRatio = availableHeigh / baseHeight;
 
-  //두 비율 중 더 작은 값 선택
-  const scale = Math.min(widthRatio, heightRatio, 1.0);
+//   //두 비율 중 더 작은 값 선택
+//   const scale = Math.min(widthRatio, heightRatio, 1.0);
 
-  if(gameArea)
-  {
-    gameArea.style.transform = `scale(${scale})`;
-  }
-}
+//   if(gameArea)
+//   {
+//     gameArea.style.transform = `scale(${scale})`;
+//   }
+// }
 
 //윈도우 로드시, 크기 변경될때마다 게임화면 조절 수행
-window.addEventListener('load', () => {
-     // 다른 초기화 로직 (예: showStageSelect()) 후 실행
-     resizeGame(); 
-});
+// window.addEventListener('load', () => {
+//      // 다른 초기화 로직 (예: showStageSelect()) 후 실행
+//      resizeGame(); 
+// });
 
-window.addEventListener('resize', resizeGame);
+// window.addEventListener('resize', resizeGame);
+
+
+
+function updateTipPopup(stageNum)
+{
+
+  const tipContent = TIPS_MAP[stageNum] || TIPS_MAP.default;
+
+  // 부모 창의 DOM 요소에 접근
+  //const tipElement = window.parent.document.getElementById('tip-content');
+  
+  // if (tipElement) {
+  //     tipElement.innerHTML = tipContent; 
+  // }
+
+}

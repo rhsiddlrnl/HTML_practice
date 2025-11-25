@@ -1,3 +1,5 @@
+
+
 :root {
     --aside-w: 150px;
 
@@ -6,7 +8,7 @@
 * {
     box-sizing: border-box;
     margin: 0;
-    padding: 0;
+    padding: 0; 
 }
 
 html,
@@ -18,8 +20,9 @@ body {
     display: flex;
     flex-direction: column;
     min-height: 100vh;
-    background: #f4f4f4;
+    background: #282727;
     font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+    
 }
 
 header,
@@ -28,9 +31,59 @@ footer {
     color: #fff;
     font-weight: 700;
     text-align: center;
-    padding: 10px 0;
+   
     flex-shrink: 0;
 }
+
+footer {
+    position: relative; /* 팝업의 기준점 */
+    background-color: #333;
+    color: white;
+    padding: 10px 0;
+    text-align: center;
+    cursor: default;
+    overflow: visible; /* 팝업이 푸터 밖으로 나가게 허용 */
+}
+
+#tip-popup {
+    position: absolute;
+    bottom: 100%; 
+    left: 50%;
+    transform: translateX(-50%) translateY(20px); 
+    width: 300px;
+    padding: 15px;
+    background-color: rgb(152, 215, 75); 
+    border-radius: 8px;
+    box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.2);
+    opacity: 0; 
+    pointer-events: none; 
+    transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+    font-size: 14px;
+    text-align: left;
+}
+#tip-popup p {
+    margin: 0;
+    line-height: 1.4;
+}
+
+footer:hover #tip-popup {
+    opacity: 1; /* 완전히 나타남 */
+    transform: translateX(-50%) translateY(0); /* 원래 위치로 올라옴 */
+}
+
+header{
+    height: 80px;
+    border-bottom: 4px solid rgb(152, 215, 75);
+
+
+    font-size: 50px;
+    font-weight: 900; 
+    letter-spacing: 2px;
+    text-shadow: 
+        0 0 10px rgba(255, 255, 255, 0.8), 
+        0 0 20px rgba(50, 139, 247, 0.5); 
+}
+
 
 main {
     flex: 1;
@@ -39,22 +92,19 @@ main {
     align-items: stretch;
 }
 
+
+
 aside {
     width: var(--aside-w);
-    background: #ddd;
+    background: black;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: 700;
-    height: 100%;
-}
+    color: white;
 
-aside.left {
-    border-right: 3px solid #000;
-}
-
-aside.right {
-    border-left: 3px solid #000;
+    margin: 10px;
+    border: 3px solid #000;
 }
 
 article {
@@ -62,11 +112,11 @@ article {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: #fff;
-    border: 3px solid #000;
-    border-radius: 10px;
+    background: rgb(19, 18, 18);
     box-shadow: 0 0 10px rgba(0, 0, 0, .25);
-    margin: 20px;
+    margin: 20px 10px;
+
+     
 }
 
 article iframe{

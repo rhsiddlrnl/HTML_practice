@@ -17,7 +17,8 @@ class Missile {
     this.spawnTime = performance.now();
   }
 
-  update(c, player, platforms, obstacles) {
+  update(c, player, platforms, obstacles, deltaTime = 1) {
+    if (!deltaTime || deltaTime <= 0) deltaTime = 1;
     if (!player || !player.position) return;
     const now = performance.now();
 
@@ -35,8 +36,8 @@ class Missile {
     const dist = Math.sqrt(dx * dx + dy * dy);
     if (dist > 0) {
       this.angle = Math.atan2(dy, dx);
-      this.position.x += (dx / dist) * this.speed;
-      this.position.y += (dy / dist) * this.speed;
+      this.position.x += (dx / dist) * this.speed *deltaTime;
+      this.position.y += (dy / dist) * this.speed *deltaTime;
     }
 
     const hitPlayer =
@@ -45,6 +46,7 @@ class Missile {
       this.position.y + this.size > player.position.y &&
       this.position.y < player.position.y + player.height;
     if (hitPlayer) {
+      player.playDeathSound();
       this.reset();
       init();
       return;
