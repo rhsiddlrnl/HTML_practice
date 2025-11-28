@@ -18,7 +18,7 @@ class Platform {
     const drawX = this.position.x - width / 2;
     const drawY = this.position.y - height;
 
-    ctx.fillStyle = this.fixed ? '#666' : 'blue';
+    ctx.fillStyle = this.fixed ? 'gray' : 'blue';
     ctx.fillRect(drawX, drawY, width, height);
 
     // 히트박스 (가로세로 분리)

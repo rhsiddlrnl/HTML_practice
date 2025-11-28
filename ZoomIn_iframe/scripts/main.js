@@ -26,7 +26,7 @@ c.msImageSmoothingEnabled = false;
 const gravity = 0.5;
 let groundY; // 바닥선 기준
 
-let unlockedStages = 8; // 현재 해금된 스테이지 수
+let unlockedStages = 1; // 현재 해금된 스테이지 수
 let inStageSelect = true;
 
 let gameClear = false;
@@ -91,7 +91,7 @@ function animate(timestamp = 0) {
   c.fillRect(0, 0, canvas.width, canvas.height);
 
   if (groundY !== null) {
-    c.fillStyle = '#888';
+    c.fillStyle = 'gray';
     c.fillRect(0, groundY, canvas.width, 20);
   }
 
@@ -118,7 +118,7 @@ function animate(timestamp = 0) {
     c.translate(player.position.x + player.width / 2, player.position.y + player.height / 2);
     c.rotate(player.rotation);
     c.scale(player.scale, player.scale);
-    c.drawImage(player.img);
+    c.fillStyle = 'black';
     c.fillRect(-player.width / 2, -player.height / 2, player.width, player.height);
     c.restore();
 
@@ -329,6 +329,7 @@ const buttons = {
   small: document.getElementById('btn-small'),
   normal: document.getElementById('btn-normal'),
   large: document.getElementById('btn-large'),
+  stage: document.getElementById('btn-select2')
 };
 
 function setSelected(id) {
@@ -350,6 +351,11 @@ buttons.normal.addEventListener('click', () => {
 buttons.large.addEventListener('click', () => {
   scaleMode = 3;
   setSelected('large');
+});
+
+buttons.stage.addEventListener('click', () => {
+  hideOverlayButtons();
+  showStageSelect();
 });
 
 function showStageSelect() {
