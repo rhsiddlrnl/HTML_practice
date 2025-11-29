@@ -25,7 +25,7 @@ c.msImageSmoothingEnabled = false;
 const gravity = 0.5;
 let groundY; // 바닥선 기준
 
-let unlockedStages = 1; // 현재 해금된 스테이지 수
+let unlockedStages = 8; // 현재 해금된 스테이지 수
 let inStageSelect = true;
 
 let gameClear = false;
@@ -252,6 +252,7 @@ function animate(timestamp = 0) {
   const goalLeft = goal.position.x - goal.size / 2;
   const goalRight = goal.position.x + goal.size / 2;
   const goalBottom = goal.position.y;
+  console.log(goal.image);
 
   const reachedGoal =
     player.position.x + player.width > goalLeft &&

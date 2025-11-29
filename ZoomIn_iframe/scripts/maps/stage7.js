@@ -18,6 +18,6 @@ const stage7 = {
     { x: 400, y: 500, width: 800, height: 30 }
   ],
   missiles: [
-    { x: 100, y: 180, speed: 3, delay : 1 }
+    { x: 100, y: 180, speed: 4, delay : 1 }
   ]
 };
