@@ -1,5 +1,5 @@
 class Missile {
-  constructor({ x, y, speed = 3, delay = 2 }) {
+  constructor({ x, y, speed = 3, delay = 2 }, image = null) {
     this.startPos = { x, y };
     this.position = { x, y };
     this.speed = speed;
@@ -7,6 +7,8 @@ class Missile {
     this.angle = 0;
 
     this.delay = delay*1000;
+
+    this.image = image;
     this.active = false;
     this.spawnTime = performance.now();
   }
@@ -74,8 +76,14 @@ class Missile {
     c.save();
     c.translate(this.position.x, this.position.y);
     c.rotate(this.angle);
+    if (this.image && this.image.complete) {
+      c.drawImage(this.image, -this.size / 2, -this.size / 4, this.size, this.size / 2);
+    } else {
+      c.fillStyle = 'red';
+      c.fillRect(-this.size / 2, -this.size / 4, this.size, this.size / 2);
+    }
     c.fillStyle = 'red';
-    c.fillRect(-this.size / 2, -this.size / 4, this.size, this.size / 2);
+
     c.restore();
   }
 

@@ -1,8 +1,9 @@
 class Obstacle {
-  constructor({ x, y, size = 40 }) {
+  constructor({ x, y, size = 40 }, image = null) {
     this.position = { x, y }; // y는 바닥 높이
     this.baseSize = size;
     this.currentSize = size;
+    this.image = image;
   }
 
   draw(ctx) {
@@ -14,8 +15,12 @@ class Obstacle {
     const drawX = this.position.x - s / 2;
     const drawY = this.position.y - s; // 바닥 기준
 
-    ctx.fillStyle = 'red';
-    ctx.fillRect(drawX, drawY, s, s);
+    if (this.image && this.image.complete) {
+      ctx.drawImage(this.image, drawX, drawY, s, s);
+    } else {
+      ctx.fillStyle = 'red';
+      ctx.fillRect(drawX, drawY, s, s);
+    }
 
     // 실제 충돌용 히트박스
     this.hitbox = { x: drawX, y: drawY, size: s };

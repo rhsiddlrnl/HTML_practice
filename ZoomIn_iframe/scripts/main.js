@@ -252,7 +252,7 @@ function animate(timestamp = 0) {
   const goalLeft = goal.position.x - goal.size / 2;
   const goalRight = goal.position.x + goal.size / 2;
   const goalBottom = goal.position.y;
-  console.log(goal.image);
+  //console.log(goal.image);
 
   const reachedGoal =
     player.position.x + player.width > goalLeft &&

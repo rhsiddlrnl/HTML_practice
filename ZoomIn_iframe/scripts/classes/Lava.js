@@ -1,8 +1,9 @@
 class Lava {
-  constructor({ x, y, width = 80, height = 20 }) {
+  constructor({ x, y, width = 80, height = 20 }, image = null) {
     this.position = { x, y };
     this.width = width;
     this.height = height;
+    this.image = image;
     this.hitbox = {
       x: x - width / 2,
       y: y - height,
@@ -12,7 +13,11 @@ class Lava {
   }
 
   draw(ctx) {
-    ctx.fillStyle = "orange";
-    ctx.fillRect(this.hitbox.x, this.hitbox.y, this.width, this.height);
+    if (this.image && this.image.complete) {
+      ctx.drawImage(this.image, this.hitbox.x, this.hitbox.y, this.width, this.height);
+    } else {
+      ctx.fillStyle = "orange";
+      ctx.fillRect(this.hitbox.x, this.hitbox.y, this.width, this.height);
+    }
   }
 }

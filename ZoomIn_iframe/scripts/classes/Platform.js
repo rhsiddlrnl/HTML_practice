@@ -1,9 +1,11 @@
 class Platform {
-  constructor({ x, y, size = 40, fixed = false }) {
+  constructor({ x, y, size = 40, fixed = false }, image = null, fixedImage = null) {
     this.position = { x, y }; // y는 바닥 기준 좌표
     this.baseSize = size;     // 기본 한 변 크기
     this.currentWidth = size; // 가로 크기
     this.fixed = fixed;
+    this.image = image;
+    this.fixedImage = fixedImage;
   }
 
   draw(ctx, player = null) {
@@ -18,8 +20,16 @@ class Platform {
     const drawX = this.position.x - width / 2;
     const drawY = this.position.y - height;
 
-    ctx.fillStyle = this.fixed ? 'gray' : 'blue';
-    ctx.fillRect(drawX, drawY, width, height);
+    if (this.image && this.image.complete && this.fixedImage && this.fixedImage.complete) {
+      if(this.fixed == true){
+        ctx.drawImage(this.fixedImage, drawX, drawY, width, height);
+      }else{
+        ctx.drawImage(this.image, drawX, drawY, width, height);
+      }
+    } else {
+      ctx.fillStyle = this.fixed ? 'gray' : 'blue';
+      ctx.fillRect(drawX, drawY, width, height);
+    }
 
     // 히트박스 (가로세로 분리)
     this.hitbox = { x: drawX, y: drawY, width, height };
