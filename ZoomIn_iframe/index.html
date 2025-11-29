@@ -33,7 +33,19 @@
         </div>
         © 2025 Team2 Project
     </footer>
-
+    <script>
+    // 메시지 수신 대기
+        window.addEventListener('message', function(e) {
+        // 메시지 타입이 'TIP_UPDATE'인지 확인
+            if (e.data.type === 'TIP_UPDATE') {
+            const tipElement = document.getElementById('tip-content');
+                if (tipElement) {
+                // 전달받은 내용으로 텍스트 변경
+                tipElement.innerHTML = e.data.content;
+                }
+            }
+        });
+    </script>
 </body>
 
 </html>

@@ -1,16 +1,15 @@
 const TIPS_MAP = {
-    1: "이동 및 점프: <span style='font-weight: 700; color: #ff6f61;'>방향키</span> 혹은 <span style='font-weight: 700; color: #1e88e5;'>wasd</span>",
+    1: "<div style='text-align: center;'>이동 및 점프: <span style='font-weight: 700; color: #ff6f61;'>방향키</span> 혹은 <span style='font-weight: 700; color: #1e88e5;'>wasd</span></div>",
     
-    2: "<span style='font-weight: 700; color: #ff6f61;'>용암</span>에 빠지지 마세요!",
+    2: "<div style='text-align: center;'><span style='font-weight: 700; color: #ff6f61;'>용암</span>에 빠지지 마세요!</div>",
 
-    4: "<span style='font-weight: 700; color: #ff6f61;'>붉은색 오브젝트</span>는 위험합니다!",
+    4: "<div style='text-align: center;'><span style='font-weight: 700; color: #ff6f61;'>붉은색 오브젝트</span>는 위험합니다!</div>",
     
-    6: "<span style='font-weight: 700; color: #ff6f61;'>미사일</span>에게서 도망치세요!",
+    6: "<div style='text-align: center;'><span style='font-weight: 700; color: #ff6f61;'>미사일</span>에게서 도망치세요!</div>",
     
-    7: "<span style='font-weight: 700; color: #ff6f61;'>미사일</span>은 <span style='font-weight: 700; color: #1e88e5;'>오브젝트에 부딪히면 파괴</span>됩니다!",
+    7: "<div style='text-align: center;'><span style='font-weight: 700; color: #ff6f61;'>미사일</span>은 <span style='font-weight: 700; color: #1e88e5;'>오브젝트에 부딪히면 파괴</span>됩니다!</div>",
     
-    default: "<span style='font-weight: 700; color: #1e88e5;'>크기를 조절</span>해 목표에 도달하세요!",
-
+    default: "<div style='text-align: center;'><span style='font-weight: 700; color: #1e88e5;'>크기를 조절</span>해 목표에 도달하세요!</div>",
 };
 
 
@@ -507,16 +506,10 @@ function getGameAreaGap()
 
 
 
-function updateTipPopup(stageNum)
-{
-
+function updateTipPopup(stageNum) {
   const tipContent = TIPS_MAP[stageNum] || TIPS_MAP.default;
-
-  // 부모 창의 DOM 요소에 접근
-  //const tipElement = window.parent.document.getElementById('tip-content');
-  
-  // if (tipElement) {
-  //     tipElement.innerHTML = tipContent; 
-  // }
-
+  window.parent.postMessage({ 
+      type: 'TIP_UPDATE', 
+      content: tipContent 
+  }, '*');
 }
